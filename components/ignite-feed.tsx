@@ -87,9 +87,38 @@ const mockPosts: Post[] = [
   },
 ]
 
+
+interface Profile {
+  name: string;
+  avatar: string;
+  role: string;
+}
+
 export function IgniteFeed() {
   const [posts, setPosts] = useState<Post[]>(mockPosts)
   const [newPost, setNewPost] = useState("")
+  const [profile, setProfile] = useState<Profile>({
+    name: "Lesley Alexander",
+    avatar: "/woman-profile.jpg",
+    role: "UI Designer",
+  });
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editProfile, setEditProfile] = useState<Profile>(profile);
+
+  const handleEditProfileOpen = () => {
+    setEditProfile(profile);
+    setEditProfileOpen(true);
+  };
+
+  const handleEditProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditProfile((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditProfileSave = () => {
+    setProfile(editProfile);
+    setEditProfileOpen(false);
+  };
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -155,11 +184,12 @@ export function IgniteFeed() {
                       <AvatarFallback>LA</AvatarFallback>
                     </Avatar>
                   </div>
-                  <h3 className="font-semibold text-white mb-1">Lesley Alexander</h3>
-                  <p className="text-gray-400 text-sm mb-4">UI Designer</p>
+                  <h3 className="font-semibold text-white mb-1">{profile.name}</h3>
+                  <p className="text-gray-400 text-sm mb-4">{profile.role}</p>
                   <Button
                     variant="outline"
                     className="w-full border-emerald-500 text-emerald-500 hover:bg-emerald-500 hover:text-white bg-transparent"
+                    onClick={handleEditProfileOpen}
                   >
                     Editar seu perfil
                   </Button>
@@ -175,12 +205,14 @@ export function IgniteFeed() {
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src="/woman-profile.jpg" />
-                    <AvatarFallback>LA</AvatarFallback>
+                    <AvatarImage src={profile.avatar} />
+                    <AvatarFallback>
+                      {profile.name.split(" ").map((n) => n[0]).join("")}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h4 className="font-semibold text-white">Lesley Alexander</h4>
-                    <p className="text-gray-400 text-sm">UI Designer</p>
+                    <h4 className="font-semibold text-white">{profile.name}</h4>
+                    <p className="text-gray-400 text-sm">{profile.role}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -207,6 +239,61 @@ export function IgniteFeed() {
             {/* Posts */}
             {posts.map((post) => (
               <Card key={post.id} className="bg-gray-800 border-gray-700">
+      {/* Modal de edição de perfil */}
+      {editProfileOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md border border-gray-700 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              onClick={() => setEditProfileOpen(false)}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold mb-4 text-white">Editar perfil</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-300 mb-1">Nome</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editProfile.name}
+                  onChange={handleEditProfileChange}
+                  className="w-full rounded bg-gray-700 border border-gray-600 text-white px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 mb-1">Cargo</label>
+                <input
+                  type="text"
+                  name="role"
+                  value={editProfile.role}
+                  onChange={handleEditProfileChange}
+                  className="w-full rounded bg-gray-700 border border-gray-600 text-white px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 mb-1">URL do Avatar</label>
+                <input
+                  type="text"
+                  name="avatar"
+                  value={editProfile.avatar}
+                  onChange={handleEditProfileChange}
+                  className="w-full rounded bg-gray-700 border border-gray-600 text-white px-3 py-2"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setEditProfileOpen(false)}>
+                Cancelar
+              </Button>
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleEditProfileSave}>
+                Salvar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
